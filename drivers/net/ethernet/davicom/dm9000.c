@@ -45,7 +45,7 @@
 #include <asm/io.h>
 
 #include "dm9000.h"
-
+#include<../../../../arch/arm/mach-s3c24xx/regs-mem.h>
 /* Board/System/Debug information/definition ---------------- */
 
 #define DM9000_PHY		0x40	/* PHY address 0x01 */
@@ -907,6 +907,11 @@ dm9000_unmask_interrupts(struct board_info *db)
 static void
 dm9000_init_dm9000(struct net_device *dev)
 {
+	unsigned int oldval_bwscon = *(volatile unsigned int*)S3C2410_BWSCON;
+	unsigned int oldval_bankcon4 = *(volatile unsigned int *)S3C2410_BANKCON4;
+	*((volatile unsigned int*)S3C2410_BWSCON) = (oldval_bwscon &~(3<<16)) | (1<<16) | (1<<18) | (1<<19);
+	*((volatile unsigned int*)S3C2410_BANKCON4) = 0x1f7c;
+
 	struct board_info *db = netdev_priv(dev);
 	unsigned int imr;
 	unsigned int ncr;
